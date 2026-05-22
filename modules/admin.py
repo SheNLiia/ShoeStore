@@ -127,9 +127,7 @@ class AdminWindow(QMainWindow):
                 widget.setStyleSheet("background-color: #2E8B57")
 
             if item["stock_quantity"] == 0:
-                widget.setStyleSheet(
-                    "background-color: lightblue"
-                )
+                widget.setStyleSheet("background-color: lightblue")
 
             self.verticalLayout_menu.addWidget(widget)
 
@@ -174,7 +172,7 @@ class AdminWindow(QMainWindow):
         file_path, _ = QFileDialog.getOpenFileName(
             self,
             "Выберите фото",
-            "",
+            "C:/Users/Emily/Downloads/Telegram Desktop",
             "Images (*.png *.jpg *.jpeg)"
         )
 
