@@ -330,8 +330,7 @@ class AdminWindow(QMainWindow):
                                  ))
 
                 # Удаляю старое изображение после замены на новое
-                if (hasattr(self, "old_image_path") and self.old_image_path != self.image_path
-                        and os.path.exists(self.old_image_path)):
+                if (self.old_image_path != self.image_path and os.path.exists(self.old_image_path)):
                     os.remove(self.old_image_path)
 
             except pymysql.MySQLError as e:
@@ -407,5 +406,4 @@ class AdminWindow(QMainWindow):
                 return
 
             QMessageBox.information(self, "Успех", "Товар добавлен")
-            form.close()
             self.sort_menu()

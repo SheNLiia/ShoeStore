@@ -127,7 +127,6 @@ class OrderWindow(QMainWindow):
                 return
 
             QMessageBox.information(self, "Успех", "Заказ добавлен")
-            form.close()
             self.load_orders()
 
     def edit_order(self, order):
@@ -207,7 +206,6 @@ class OrderWindow(QMainWindow):
                 return
 
             QMessageBox.information(self, "Успех", "Заказ изменён")
-
             self.load_orders()
 
     def back_to_manager(self):
