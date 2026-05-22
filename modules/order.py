@@ -5,6 +5,7 @@ from modules.database import db
 from PyQt6.QtWidgets import QMainWindow, QMessageBox
 from PyQt6 import uic
 
+
 class OrderWindow(QMainWindow):
     def __init__(self, role_name=None, user_fio=None, user_id=3):
         super().__init__()
@@ -30,13 +31,13 @@ class OrderWindow(QMainWindow):
 
         try:
             orders = db.fetch_all("""
-                SELECT o.*, pp.full_address, os.status_name, p.article
-                FROM orders o
-                LEFT JOIN pickup_points pp ON pp.pickup_point_id = o.pickup_point_id
-                LEFT JOIN order_statuses os ON os.status_id = o.status_id
-                LEFT JOIN OrderItems oi ON oi.order_id = o.order_id
-                LEFT JOIN Products p ON p.product_id = oi.product_id
-            """)
+                                  SELECT o.*, pp.full_address, os.status_name, p.article
+                                  FROM orders o
+                                           LEFT JOIN pickup_points pp ON pp.pickup_point_id = o.pickup_point_id
+                                           LEFT JOIN order_statuses os ON os.status_id = o.status_id
+                                           LEFT JOIN OrderItems oi ON oi.order_id = o.order_id
+                                           LEFT JOIN Products p ON p.product_id = oi.product_id
+                                  """)
         except pymysql.MySQLError as e:
             QMessageBox.critical(self, "Ошибка", str(e))
             return
@@ -52,7 +53,8 @@ class OrderWindow(QMainWindow):
             widget.label_delivery_date.setText(f"Дата доставки: {order['delivery_date']}")
 
             if self.role_name == "Администратор":
-                widget.mousePressEvent = lambda event, i=order: (self.edit_order(i) if event.button() == Qt.MouseButton.RightButton else None)
+                widget.mousePressEvent = lambda event, i=order: (
+                    self.edit_order(i) if event.button() == Qt.MouseButton.RightButton else None)
                 widget.mouseDoubleClickEvent = lambda event, i=order: self.delete_order(i)
 
             self.verticalLayout_order.addWidget(widget)
@@ -61,9 +63,9 @@ class OrderWindow(QMainWindow):
         order_id = order["order_id"]
 
         try:
-            db.execute("DELETE FROM OrderItems WHERE order_id = %s",(order_id,))
+            db.execute("DELETE FROM OrderItems WHERE order_id = %s", (order_id,))
 
-            db.execute("DELETE FROM Orders WHERE order_id = %s",(order_id,))
+            db.execute("DELETE FROM Orders WHERE order_id = %s", (order_id,))
 
         except pymysql.MySQLError as e:
             QMessageBox.critical(self, "Ошибка БД", str(e))
@@ -96,7 +98,8 @@ class OrderWindow(QMainWindow):
                 if pickup_point:
                     pickup_point_id = pickup_point["pickup_point_id"]
                 else:
-                    pickup_point_id = db.execute("INSERT INTO Pickup_points (full_address) VALUES (%s)", (full_address,))
+                    pickup_point_id = db.execute("INSERT INTO Pickup_points (full_address) VALUES (%s)",
+                                                 (full_address,))
 
                 product = db.fetch_one("SELECT * FROM Products WHERE article = %s", (article,))
 
@@ -109,20 +112,21 @@ class OrderWindow(QMainWindow):
                 status_id = form.comboBox_status.currentData()
 
                 order_id = db.execute("""
-                    INSERT INTO Orders (user_id, pickup_point_id, pickup_code, status_id, order_date, delivery_date)
-                    VALUES (%s, %s, %s, %s, %s, %s)
-                """, (self.user_id, pickup_point_id, "000", status_id, order_date, delivery_date))
+                                      INSERT INTO Orders (user_id, pickup_point_id, pickup_code, status_id, order_date,
+                                                          delivery_date)
+                                      VALUES (%s, %s, %s, %s, %s, %s)
+                                      """, (self.user_id, pickup_point_id, "000", status_id, order_date, delivery_date))
 
                 db.execute("""
-                    INSERT INTO OrderItems (order_id, product_id, quantity, price)
-                    VALUES (%s, %s, %s, %s)
-                """, (order_id, product_id, 1, product["price"]))
+                           INSERT INTO OrderItems (order_id, product_id, quantity, price)
+                           VALUES (%s, %s, %s, %s)
+                           """, (order_id, product_id, 1, product["price"]))
 
             except pymysql.MySQLError as e:
                 QMessageBox.critical(self, "Ошибка БД", str(e))
                 return
 
-            QMessageBox.information(self,"Успех","Заказ добавлен")
+            QMessageBox.information(self, "Успех", "Заказ добавлен")
             form.close()
             self.load_orders()
 
@@ -137,14 +141,14 @@ class OrderWindow(QMainWindow):
             form.comboBox_status.addItem(status["status_name"])
 
         order = db.fetch_one("""
-            SELECT o.*, pp.full_address, os.status_name, p.article
-            FROM Orders o
-                     LEFT JOIN Pickup_points pp ON pp.pickup_point_id = o.pickup_point_id
-                     LEFT JOIN Order_statuses os ON os.status_id = o.status_id
-                     LEFT JOIN OrderItems oi ON oi.order_id = o.order_id
-                     LEFT JOIN Products p ON p.product_id = oi.product_id
-            WHERE o.order_id = %s
-        """, (order_id,))
+                             SELECT o.*, pp.full_address, os.status_name, p.article
+                             FROM Orders o
+                                      LEFT JOIN Pickup_points pp ON pp.pickup_point_id = o.pickup_point_id
+                                      LEFT JOIN Order_statuses os ON os.status_id = o.status_id
+                                      LEFT JOIN OrderItems oi ON oi.order_id = o.order_id
+                                      LEFT JOIN Products p ON p.product_id = oi.product_id
+                             WHERE o.order_id = %s
+                             """, (order_id,))
 
         form.lineEdit_article.setText(order["article"])
         form.comboBox_status.setCurrentText(order["status_name"])
@@ -168,7 +172,8 @@ class OrderWindow(QMainWindow):
                 if pickup_point:
                     pickup_point_id = pickup_point["pickup_point_id"]
                 else:
-                    pickup_point_id = db.execute("INSERT INTO Pickup_points (full_address) VALUES (%s)", (full_address,))
+                    pickup_point_id = db.execute("INSERT INTO Pickup_points (full_address) VALUES (%s)",
+                                                 (full_address,))
 
                 status = db.fetch_one("SELECT * FROM Order_statuses WHERE status_name = %s", (status,))
                 status_id = status["status_id"]
@@ -182,20 +187,20 @@ class OrderWindow(QMainWindow):
                 product_id = product["product_id"]
 
                 db.execute("""
-                    UPDATE Orders
-                    SET pickup_point_id = %s,
-                        status_id       = %s,
-                        order_date      = %s,
-                        delivery_date   = %s
-                    WHERE order_id = %s
-                """, (pickup_point_id, status_id, order_date, delivery_date, order_id))
+                           UPDATE Orders
+                           SET pickup_point_id = %s,
+                               status_id       = %s,
+                               order_date      = %s,
+                               delivery_date   = %s
+                           WHERE order_id = %s
+                           """, (pickup_point_id, status_id, order_date, delivery_date, order_id))
 
                 db.execute("""
-                    UPDATE OrderItems
-                    SET product_id = %s,
-                        price      = %s
-                    WHERE order_id = %s
-                """, (product_id, product["price"], order_id))
+                           UPDATE OrderItems
+                           SET product_id = %s,
+                               price      = %s
+                           WHERE order_id = %s
+                           """, (product_id, product["price"], order_id))
 
             except pymysql.MySQLError as e:
                 QMessageBox.critical(self, "Ошибка БД", str(e))

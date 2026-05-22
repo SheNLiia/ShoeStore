@@ -4,6 +4,7 @@ from modules.database import db
 from PyQt6.QtWidgets import QMainWindow, QMessageBox
 from PyQt6 import uic
 
+
 class ManagerWindow(QMainWindow):
     def __init__(self, role_name=None, user_fio=None):
         super().__init__()
@@ -25,11 +26,13 @@ class ManagerWindow(QMainWindow):
         self.load_suppliers()
 
     def load_menu(self, text="DESC", supplier="Все поставщики", search_text=""):
+        # Очищаю текущий список товаров перед повторной загрузкой
         for i in reversed(range(self.verticalLayout_menu.count())):
             self.verticalLayout_menu.itemAt(i).widget().setParent(None)
 
         try:
             if supplier == "Все поставщики":
+                # Поиск выполняется одновременно по названию, описанию, категории, производителю и поставщику
                 items = db.fetch_all(f"""
                     SELECT p.*, c.category_name, m.manufacturer_name, s.supplier_name
                     FROM Products p
@@ -139,10 +142,8 @@ class ManagerWindow(QMainWindow):
         self.comboBox_sort_suppliers.clear()
         self.comboBox_sort_suppliers.addItem("Все поставщики")
         try:
-            suppliers = db.fetch_all("""
-                SELECT supplier_name
-                FROM suppliers
-            """)
+            suppliers = db.fetch_all("SELECT supplier_name FROM suppliers")
+
             for supplier in suppliers:
                 self.comboBox_sort_suppliers.addItem(supplier["supplier_name"])
         except pymysql.MySQLError as e:

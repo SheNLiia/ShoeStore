@@ -28,11 +28,12 @@ class AuthWindow(QMainWindow):
 
         try:
             user = db.fetch_one("""
-                SELECT u.*, r.role_name, r.role_id
-                FROM users u
-                JOIN roles r ON r.role_id = u.role_id
-                WHERE username = %s AND password_hash = %s
-            """, (username, password_hash))
+                                SELECT u.*, r.role_name, r.role_id
+                                FROM users u
+                                         JOIN roles r ON r.role_id = u.role_id
+                                WHERE username = %s
+                                  AND password_hash = %s
+                                """, (username, password_hash))
         except pymysql.MySQLError as e:
             QMessageBox.critical(self, "Ошибка БД: ", str(e))
             return
@@ -46,6 +47,7 @@ class AuthWindow(QMainWindow):
         role_name = user['role_name']
         user_fio = f"{user['surname']} {user['name']} {user['patronymic']}"
 
+        # Открываю окно в зависимости от роли пользователя
         if role_id == 1:
             self.window = ClientWindow(role_name, user_fio, user_id)
         elif role_id == 2:

@@ -4,6 +4,7 @@ from modules.database import db
 from PyQt6.QtWidgets import QMainWindow, QMessageBox
 from PyQt6 import uic
 
+
 class ClientWindow(QMainWindow):
     def __init__(self, role_name=None, user_fio=None, user_id=None):
         super().__init__()
@@ -25,17 +26,18 @@ class ClientWindow(QMainWindow):
         self.load_menu()
 
     def load_menu(self):
+        # Очищаю текущий список товаров перед повторной загрузкой
         for i in reversed(range(self.verticalLayout_menu.count())):
             self.verticalLayout_menu.itemAt(i).widget().setParent(None)
 
         try:
             items = db.fetch_all("""
-                SELECT p.*, c.category_name, m.manufacturer_name, s.supplier_name
-                FROM products p
-                LEFT JOIN categories c ON c.category_id = p.category_id
-                LEFT JOIN manufacturers m ON m.manufacturer_id = p.manufacturer_id
-                LEFT JOIN suppliers s ON s.supplier_id = p.supplier_id
-            """)
+                                 SELECT p.*, c.category_name, m.manufacturer_name, s.supplier_name
+                                 FROM products p
+                                          LEFT JOIN categories c ON c.category_id = p.category_id
+                                          LEFT JOIN manufacturers m ON m.manufacturer_id = p.manufacturer_id
+                                          LEFT JOIN suppliers s ON s.supplier_id = p.supplier_id
+                                 """)
         except pymysql.MySQLError as e:
             QMessageBox.critical(self, "Ошибка", str(e))
             return

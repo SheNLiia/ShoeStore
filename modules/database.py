@@ -1,5 +1,6 @@
 import pymysql
 
+
 class Database:
     def __init__(self):
         self.connection = None
@@ -41,5 +42,6 @@ class Database:
                 return cursor.fetchone()
         except pymysql.MySQLError as e:
             raise e
+
 
 db = Database()

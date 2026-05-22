@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import QFileDialog
 import shutil
 import os
 
+
 class AdminWindow(QMainWindow):
     def __init__(self, role_name=None, user_fio=None):
         super().__init__()
@@ -30,11 +31,13 @@ class AdminWindow(QMainWindow):
         self.load_suppliers()
 
     def load_menu(self, text="DESC", supplier="Все поставщики", search_text=""):
+        # Очищаю текущий список товаров перед повторной загрузкой
         for i in reversed(range(self.verticalLayout_menu.count())):
             self.verticalLayout_menu.itemAt(i).widget().setParent(None)
 
         try:
             if supplier == "Все поставщики":
+                # Поиск выполняется одновременно по названию, описанию, категории, производителю и поставщику
                 items = db.fetch_all(f"""
                     SELECT p.*, c.category_name, m.manufacturer_name, s.supplier_name
                     FROM Products p
@@ -48,11 +51,11 @@ class AdminWindow(QMainWindow):
                        OR s.supplier_name LIKE %s
                     ORDER BY p.stock_quantity {text}
                     """, (
-                        f"%{search_text}%",
-                        f"%{search_text}%",
-                        f"%{search_text}%",
-                        f"%{search_text}%",
-                        f"%{search_text}%"
+                    f"%{search_text}%",
+                    f"%{search_text}%",
+                    f"%{search_text}%",
+                    f"%{search_text}%",
+                    f"%{search_text}%"
                 ))
 
             else:
@@ -76,7 +79,7 @@ class AdminWindow(QMainWindow):
                     f"%{search_text}%",
                     f"%{search_text}%",
                     f"%{search_text}%"
-            ))
+                ))
 
         except pymysql.MySQLError as e:
             QMessageBox.critical(self, "Ошибка БД", str(e))
@@ -111,7 +114,8 @@ class AdminWindow(QMainWindow):
                 widget.label_photo.setPixmap(pixmap)
 
             widget.mouseDoubleClickEvent = lambda event, i=item: self.delete_item(i)
-            widget.mousePressEvent = lambda event, i=item: (self.edit_item(i) if event.button() == Qt.MouseButton.RightButton else None)
+            widget.mousePressEvent = lambda event, i=item: (
+                self.edit_item(i) if event.button() == Qt.MouseButton.RightButton else None)
 
             price = int(item['price'])
 
@@ -148,9 +152,9 @@ class AdminWindow(QMainWindow):
         self.comboBox_sort_suppliers.addItem("Все поставщики")
         try:
             suppliers = db.fetch_all("""
-                SELECT supplier_name
-                FROM suppliers
-            """)
+                                     SELECT supplier_name
+                                     FROM suppliers
+                                     """)
             for supplier in suppliers:
                 self.comboBox_sort_suppliers.addItem(supplier["supplier_name"])
         except pymysql.MySQLError as e:
@@ -179,11 +183,13 @@ class AdminWindow(QMainWindow):
         if not file_path:
             return
 
+        # Создаю папку images, если она отсутствует
         os.makedirs("images", exist_ok=True)
 
         file_name = os.path.basename(file_path)
         new_path = os.path.join("images", file_name)
 
+        # Копирую выбранное изображение в папку проекта
         if os.path.abspath(file_path) != os.path.abspath(new_path):
             shutil.copy(file_path, new_path)
 
@@ -202,6 +208,7 @@ class AdminWindow(QMainWindow):
             (product_id,)
         )
 
+        # Запрещаю удаление товара, если он присутствует в заказах
         if order_item:
             QMessageBox.warning(
                 self,
@@ -248,7 +255,8 @@ class AdminWindow(QMainWindow):
             form.comboBox_manufacturer_name.addItem(manufacturer["manufacturer_name"], manufacturer["manufacturer_id"])
 
         form.comboBox_category_name.setCurrentIndex(form.comboBox_category_name.findData(item["category_id"]))
-        form.comboBox_manufacturer_name.setCurrentIndex(form.comboBox_manufacturer_name.findData(item["manufacturer_id"]))
+        form.comboBox_manufacturer_name.setCurrentIndex(
+            form.comboBox_manufacturer_name.findData(item["manufacturer_id"]))
 
         form.lineEdit_product_name.setText(item["product_name"])
         form.lineEdit_price.setText(str(item["price"]))
@@ -305,13 +313,23 @@ class AdminWindow(QMainWindow):
 
                 db.execute("""
                            UPDATE Products
-                           SET article=%s, product_name=%s, category_id=%s, description=%s, manufacturer_id=%s, supplier_id=%s,
-                               price=%s, unit=%s, stock_quantity=%s, discount_percentage=%s, image_path=%s
+                           SET article=%s,
+                               product_name=%s,
+                               category_id=%s,
+                               description=%s,
+                               manufacturer_id=%s,
+                               supplier_id=%s,
+                               price=%s,
+                               unit=%s,
+                               stock_quantity=%s,
+                               discount_percentage=%s,
+                               image_path=%s
                            WHERE product_id = %s
                            """, (article, product_name, category_id, description, manufacturer_id, supplier_id,
                                  price, unit, stock_quantity, discount_percentage, self.image_path, product_id
-                           ))
+                                 ))
 
+                # Удаляю старое изображение после замены на новое
                 if (hasattr(self, "old_image_path") and self.old_image_path != self.image_path
                         and os.path.exists(self.old_image_path)):
                     os.remove(self.old_image_path)
@@ -355,7 +373,7 @@ class AdminWindow(QMainWindow):
             supplier_name = form.lineEdit_supplier_name.text()
 
             if (product_name == "" or price == "" or unit == "" or stock_quantity == "" or discount_percentage == ""
-                    or description == ""or article == ""or supplier_name == ""):
+                    or description == "" or article == "" or supplier_name == ""):
                 QMessageBox.warning(self, "Ошибка", "Заполните все поля")
                 return
 
@@ -377,12 +395,12 @@ class AdminWindow(QMainWindow):
                     return
 
                 db.execute("""
-                    INSERT INTO Products (article, product_name, category_id, description, manufacturer_id, 
-                                          supplier_id, price, unit, stock_quantity, discount_percentage, image_path)
-                    VALUES
-                        (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                """, (article, product_name, category_id, description, manufacturer_id,
-                                          supplier_id, price, unit, stock_quantity, discount_percentage, self.image_path))
+                           INSERT INTO Products (article, product_name, category_id, description, manufacturer_id,
+                                                 supplier_id, price, unit, stock_quantity, discount_percentage,
+                                                 image_path)
+                           VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                           """, (article, product_name, category_id, description, manufacturer_id,
+                                 supplier_id, price, unit, stock_quantity, discount_percentage, self.image_path))
 
             except pymysql.MySQLError as e:
                 QMessageBox.critical(self, "Ошибка БД", str(e))
