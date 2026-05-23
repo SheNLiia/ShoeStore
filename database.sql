@@ -1,7 +1,7 @@
 CREATE DATABASE IF NOT EXISTS ShoeStore;
 USE ShoeStore;
 
--- 1.Таблица ролей пользователей
+-- 1. Таблица ролей пользователей
 CREATE TABLE Roles (
     role_id INT PRIMARY KEY AUTO_INCREMENT,
     role_name VARCHAR(50) NOT NULL UNIQUE
@@ -42,7 +42,7 @@ VALUES
 ('Егор', 'Федоров', 'Алексеевич', 'user4@mail.com', 'pass4', 1),
 ('Мария', 'Орлова', 'Викторовна', 'user5@mail.com', 'pass5', 1);
 
--- 3.Таблица производителей обуви
+-- 3. Таблица производителей обуви
 CREATE TABLE Manufacturers (
     manufacturer_id INT PRIMARY KEY AUTO_INCREMENT,
     manufacturer_name VARCHAR(100) NOT NULL UNIQUE
@@ -55,7 +55,7 @@ VALUES
 ('Рос'),
 ('Rieker');
 
--- 4.Таблица поставщиков обуви
+-- 4. Таблица поставщиков обуви
 CREATE TABLE Suppliers (
     supplier_id INT PRIMARY KEY AUTO_INCREMENT,
     supplier_name VARCHAR(100)
@@ -77,7 +77,7 @@ VALUES
 ('Женская обувь'),
 ('Мужская обувь');
 
--- 6.Таблица товаров (обувь)
+-- 6. Таблица товаров (обувь)
 CREATE TABLE Products (
     product_id INT PRIMARY KEY AUTO_INCREMENT,
     article VARCHAR(50) UNIQUE,
@@ -105,7 +105,7 @@ VALUES
 ('G783F5', 'Ботинки', 2, 'Мужские ботинки Рос-Обувь кожаные с натуральным мехом', 3, 1, 5900, 'шт.', 8, 2, 'images/2.jpg'),
 ('J384T6', 'Ботинки', 2, 'Полуботинки мужские Rieker', 4, 2, 3800, 'шт.', 16, 20, 'images/3.jpg');
 
--- 7.Таблица пунктов выдачи
+-- 7. Таблица пунктов выдачи
 CREATE TABLE Pickup_points (
     pickup_point_id INT PRIMARY KEY AUTO_INCREMENT,
     full_address VARCHAR(255)
@@ -117,7 +117,7 @@ VALUES
 (15, 'г. Лесной, ул. Садовая, 15'),
 (19, 'г. Лесной, ул. Молодежная, 19');
 
--- 8.Таблица статусов заказов
+-- 8. Таблица статусов заказов
 CREATE TABLE Order_statuses (
     status_id INT PRIMARY KEY AUTO_INCREMENT,
     status_name VARCHAR(50) UNIQUE
@@ -156,7 +156,7 @@ VALUES
 (9, 4, 19, '909', 2, '2025-04-02', '2025-04-28'),
 (10, 1, 11, '910', 2, '2025-04-05', '2025-04-29');
 
--- 10.Таблица деталей заказа
+-- 10. Таблица деталей заказа
 CREATE TABLE OrderItems (
     order_item_id INT PRIMARY KEY AUTO_INCREMENT,
     order_id INT,
