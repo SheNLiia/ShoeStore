@@ -338,8 +338,6 @@ class AdminWindow(QMainWindow):
                 return
 
             QMessageBox.information(self, "Успех", "Товар изменён")
-
-            form.close()
             self.sort_menu()
 
     def add_item(self):
